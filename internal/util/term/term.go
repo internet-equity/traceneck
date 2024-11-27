@@ -22,3 +22,10 @@ func Confirm(prompt string) {
 		}
 	}
 }
+
+// IsTerm: whether stdout is attached to a character device (terminal)
+func IsTerm() bool {
+	fileInfo, _ := os.Stdout.Stat()
+	fileMask := fileInfo.Mode() & os.ModeCharDevice
+	return fileMask == os.ModeCharDevice
+}

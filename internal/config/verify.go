@@ -19,7 +19,7 @@ import (
 var flog = log.New(os.Stderr, "", log.LstdFlags)
 
 func checkNakedOutPath() error {
-	if Force || OutPath == "-" || osUtil.PathDirectoryLike(OutPath) || filepath.Ext(OutPath) != "" {
+	if Force || OutPath == "-" || osUtil.PathDirectoryLike(OutPath) || filepath.Ext(OutPath) != "" || !term.IsTerm() {
 		return nil
 	}
 	core := errors.New("archive destination is ambiguous")
@@ -29,13 +29,10 @@ func checkNakedOutPath() error {
 }
 
 func checkTerminalOutput() error {
-	if !Force && OutPath == "-" {
-		// we're going to write to stdout --
-		// check that it's not the terminal
-		fileInfo, _ := os.Stdout.Stat()
-		if (fileInfo.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
-			return errors.New("archive destination is character device (terminal)")
-		}
+	// if we're going to write to stdout,
+	// check that it's not the terminal
+	if !Force && OutPath == "-" && term.IsTerm() {
+		return errors.New("archive destination is character device (terminal)")
 	}
 	return nil
 }
